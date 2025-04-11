@@ -1,0 +1,95 @@
+C:\Users\chess\PycharmProjects\ClickHouse_study>docker-compose exec clickhouse clickhouse-client --user admin --password password123
+time="2025-04-05T17:08:18+05:00" level=warning msg="C:\\Users\\chess\\PycharmProjects\\ClickHouse_study\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ClickHouse client version 23.8.16.16 (official build).
+Connecting to localhost:9000 as user admin.
+Connected to ClickHouse server version 23.8.16 revision 54465.
+
+Warnings:
+ * Linux is not using a fast clock source. Performance can be degraded. Check /sys/devices/system/clocksource/clocksource0/current_clocksource
+ * Linux transparent hugepages are set to "always". Check /sys/kernel/mm/transparent_hugepage/enabled
+
+359c467d8e3a :) use test_db
+
+USE test_db
+
+Query id: 1892f946-fb7c-402b-a407-ebcc4628c9f9
+
+Ok.
+
+0 rows in set. Elapsed: 0.002 sec.
+
+359c467d8e3a :) select count(*) from trips
+
+SELECT count(*)
+FROM trips
+
+Query id: 4779258a-b438-485f-b283-2b700daacef4
+
+
+0 rows in set. Elapsed: 0.005 sec.
+
+Received exception from server (version 23.8.16):
+Code: 60. DB::Exception: Received from localhost:9000. DB::Exception: Table test_db.trips does not exist. (UNKNOWN_TABLE)
+
+359c467d8e3a :) SHOW TABLES;
+
+SHOW TABLES
+
+Query id: c36310c4-bb9b-41d1-8cd5-a19f2a5e2504
+
+Ok.
+
+0 rows in set. Elapsed: 0.005 sec.
+
+359c467d8e3a :) SHOW DATABASES;
+
+SHOW DATABASES
+
+Query id: e16caaf7-84f3-49e1-8446-ebd2bace1e3c
+
+┌─name───────────────┐
+│ INFORMATION_SCHEMA │
+│ default            │
+│ information_schema │
+│ system             │
+│ test_db            │
+└────────────────────┘
+
+5 rows in set. Elapsed: 0.003 sec.
+
+359c467d8e3a :) use default
+
+USE default
+
+Query id: e7a269c0-3f41-4c33-9378-92c33ae84863
+
+Ok.
+
+0 rows in set. Elapsed: 0.002 sec.
+
+359c467d8e3a :) SHOW TABLES;
+
+SHOW TABLES
+
+Query id: fcae7b4f-6ee9-4656-8c08-2404e1d68c2d
+
+┌─name──┐
+│ trips │
+└───────┘
+
+1 row in set. Elapsed: 0.004 sec.
+
+359c467d8e3a :) select count(*) from trips
+
+SELECT count(*)
+FROM trips
+
+Query id: dd92e63a-8491-467b-82ac-8f012b21a2cf
+
+┌─count()─┐
+│ 1999657 │
+└─────────┘
+
+1 row in set. Elapsed: 0.009 sec.
+
+359c467d8e3a :)

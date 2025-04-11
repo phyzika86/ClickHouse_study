@@ -1,0 +1,92 @@
+C:\Users\chess\OtusNoSQl\ClickHouse_study>docker-compose exec clickhouse01 clickhouse-client --user admin --password password123
+time="2025-04-11T11:35:51+05:00" level=warning msg="C:\\Users\\chess\\OtusNoSQl\\ClickHouse_study\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ClickHouse client version 23.8.16.16 (official build).
+Connecting to localhost:9000 as user admin.
+Connected to ClickHouse server version 23.8.16 revision 54465.
+
+Warnings:
+ * Linux is not using a fast clock source. Performance can be degraded. Check /sys/devices/system/clocksource/clocksource0/current_clocksource
+ * Linux transparent hugepages are set to "always". Check /sys/kernel/mm/transparent_hugepage/enabled
+
+4c8864b501ea :) SELECT *
+FROM system.clusters
+WHERE cluster = 'cluster_2shards_2replicas'
+
+SELECT *
+FROM system.clusters
+WHERE cluster = 'cluster_2shards_2replicas'
+
+Query id: 78db1079-4a8c-414b-97c2-e37f237f7701
+
+┌─cluster───────────────────┬─shard_num─┬─shard_weight─┬─replica_num─┬─host_name────┬─host_address─┬─port─┬─is_local─┬─user──┬─default_database─┬─errors_count─┬─slowdowns_count─┬─estimated_recovery_time─┬─database_shard_name─┬─database_replica_name─┬─is_active─┐
+│ cluster_2shards_2replicas │         1 │            1 │           1 │ clickhouse01 │ 172.18.0.5   │ 9000 │        1 │ admin │                  │            0 │               0 │                       0 │                     │                       │      ᴺᵁᴸᴸ │
+│ cluster_2shards_2replicas │         1 │            1 │           2 │ clickhouse02 │ 172.18.0.4   │ 9000 │        0 │ admin │                  │            0 │               0 │                       0 │                     │                       │      ᴺᵁᴸᴸ │
+│ cluster_2shards_2replicas │         2 │            1 │           1 │ clickhouse03 │ 172.18.0.6   │ 9000 │        0 │ admin │                  │            0 │               0 │                       0 │                     │                       │      ᴺᵁᴸᴸ │
+│ cluster_2shards_2replicas │         2 │            1 │           2 │ clickhouse04 │ 172.18.0.3   │ 9000 │        0 │ admin │                  │            0 │               0 │                       0 │                     │                       │      ᴺᵁᴸᴸ │
+└───────────────────────────┴───────────┴──────────────┴─────────────┴──────────────┴──────────────┴──────┴──────────┴───────┴──────────────────┴──────────────┴─────────────────┴─────────────────────────┴─────────────────────┴───────────────────────┴───────────┘
+
+4 rows in set. Elapsed: 0.007 sec.
+
+4c8864b501ea :) select count() from trips
+
+SELECT count()
+FROM trips
+
+Query id: 2af91b9b-e089-490b-b1fd-59e7e37b0959
+
+┌─count()─┐
+│ 1999657 │
+└─────────┘
+
+1 row in set. Elapsed: 0.244 sec.
+
+4c8864b501ea :) select count() trips_local
+
+SELECT count() AS trips_local
+
+Query id: 176fcebd-cb2d-416e-be0b-e897596029fb
+
+┌─trips_local─┐
+│           1 │
+└─────────────┘
+
+1 row in set. Elapsed: 0.012 sec.
+
+4c8864b501ea :) select count() from trips_local
+
+SELECT count()
+FROM trips_local
+
+Query id: 63118de1-a43e-4d82-bdc6-2714b4e03225
+
+┌─count()─┐
+│  999771 │
+└─────────┘
+
+1 row in set. Elapsed: 0.010 sec.
+
+4c8864b501ea :) SELECT
+:-]     shardNum() AS shard,
+:-]     hostName() AS host,
+:-]     count() AS rows_count
+:-] FROM trips_local
+:-] GROUP BY shard, host
+:-] ORDER BY shard
+
+SELECT
+    shardNum() AS shard,
+    hostName() AS host,
+    count() AS rows_count
+FROM trips_local
+GROUP BY
+    shard,
+    host
+ORDER BY shard ASC
+
+Query id: 6d72f36b-2641-4d67-a139-4af95468c746
+
+┌─shard─┬─host─────────┬─rows_count─┐
+│     0 │ 4c8864b501ea │     999771 │
+└───────┴──────────────┴────────────┘
+
+1 row in set. Elapsed: 0.096 sec.

@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  zookeeper:
+    image: zookeeper:3.8
+    container_name: zookeeper
+    restart: always
+    ports:
+      - "2181:2181"
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zookeeper:2888:3888;2181
+      ZOO_4LW_COMMANDS_WHITELIST: "*"
+      ZOO_MAX_CLIENT_CNXNS: 1000
+    volumes:
+      - zookeeper_data:/data
+      - zookeeper_datalog:/datalog
+    networks:
+      - clickhouse-network
+
+  clickhouse01:
+    image: clickhouse/clickhouse-server:23.8
+    container_name: clickhouse01
+    restart: always
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - clickhouse01_data:/var/lib/clickhouse
+      - ./config/clickhouse01:/etc/clickhouse-server/config.d
+    environment:
+      CLICKHOUSE_USER: admin
+      CLICKHOUSE_PASSWORD: password123
+    depends_on:
+      - zookeeper
+    networks:
+      - clickhouse-network
+
+  clickhouse02:
+    image: clickhouse/clickhouse-server:23.8
+    container_name: clickhouse02
+    restart: always
+    ports:
+      - "8124:8123"
+      - "9001:9000"
+    volumes:
+      - clickhouse02_data:/var/lib/clickhouse
+      - ./config/clickhouse02:/etc/clickhouse-server/config.d
+    environment:
+      CLICKHOUSE_USER: admin
+      CLICKHOUSE_PASSWORD: password123
+    depends_on:
+      - zookeeper
+    networks:
+      - clickhouse-network
+
+  clickhouse03:
+    image: clickhouse/clickhouse-server:23.8
+    container_name: clickhouse03
+    restart: always
+    ports:
+      - "8125:8123"
+      - "9002:9000"
+    volumes:
+      - clickhouse03_data:/var/lib/clickhouse
+      - ./config/clickhouse03:/etc/clickhouse-server/config.d
+    environment:
+      CLICKHOUSE_USER: admin
+      CLICKHOUSE_PASSWORD: password123
+    depends_on:
+      - zookeeper
+    networks:
+      - clickhouse-network
+
+  clickhouse04:
+    image: clickhouse/clickhouse-server:23.8
+    container_name: clickhouse04
+    restart: always
+    ports:
+      - "8126:8123"
+      - "9003:9000"
+    volumes:
+      - clickhouse04_data:/var/lib/clickhouse
+      - ./config/clickhouse04:/etc/clickhouse-server/config.d
+    environment:
+      CLICKHOUSE_USER: admin
+      CLICKHOUSE_PASSWORD: password123
+    depends_on:
+      - zookeeper
+    networks:
+      - clickhouse-network
+
+  python-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.python
+    container_name: python-app
+    volumes:
+      - ./scripts:/app:rw
+    depends_on:
+      - clickhouse01
+      - clickhouse02
+      - clickhouse03
+      - clickhouse04
+    environment:
+      CLICKHOUSE_HOST: clickhouse01  # Можно подключиться к любой ноде
+      CLICKHOUSE_PORT: "9000"
+      CLICKHOUSE_USER: admin
+      CLICKHOUSE_PASSWORD: password123
+      CLICKHOUSE_CLUSTER_NAME: "cluster_2shards_2replicas"
+    working_dir: /app
+    networks:
+      - clickhouse-network
+
+volumes:
+  zookeeper_data:
+  zookeeper_datalog:
+  clickhouse01_data:
+  clickhouse02_data:
+  clickhouse03_data:
+  clickhouse04_data:
+
+networks:
+  clickhouse-network:
